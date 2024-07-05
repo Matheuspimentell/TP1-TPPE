@@ -49,4 +49,9 @@ public class Sale {
   public void setItems(List<Product> items) {
     this.items = items;
   }
+
+  // Other methods
+  public double getICMS(Address address) {
+    return address.getState() == "DF" ? 0.18 : 0.12;
+  }
 }

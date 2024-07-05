@@ -116,4 +116,50 @@ public class SaleTest {
 
     assertEquals(icms, sale.getICMS(customer.getAddress()), 0.001);
   }
+
+  @Test
+  public void shippingCost() {
+    sale = new Sale(date, customer, cardNumber, items);
+
+    switch (customer.getAddress().getState()) {
+      case "DF":
+        assertEquals(5.0, sale.getShippingCost(customer.getAddress()), 0.001);
+      case "GO": case "MT": case "MS":
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(13.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        }
+      case "BA": case "PE": case "CE": case "RN": case "PB": case "SE": case "AL": case "MA": case "PI":
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(15.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(18.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        }
+      case "AM": case "PA": case "AP": case "RO": case "RR": case "AC": case "TO":
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(20.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(25.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        }
+      case "SP": case "RJ": case "MG": case "ES":
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(7.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        }
+      case "PR": case "SC": case "RS":
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(13.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        };
+      default:
+        if(customer.getAddress().getIsCapital()) {
+          assertEquals(0.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        } else {
+          assertEquals(0.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        };
+    }
+  }
 }
