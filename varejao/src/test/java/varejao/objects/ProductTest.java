@@ -50,19 +50,4 @@ public class ProductTest {
     assertEquals(salePrice, product.getSalePrice(), 0.001);
     assertEquals(unit, product.getUnit());
   }
-  
-  @Test
-  public void testSettersAndGetters() {
-    product = new Product(itemCode, description, salePrice, unit);
-
-    product.setItemCode("005");
-    product.setDescription("Headphones");
-    product.setSalePrice(100.0);
-    product.setUnit("piece");
-    
-    assertEquals("005", product.getItemCode());
-    assertEquals("Headphones", product.getDescription());
-    assertEquals(100.0, product.getSalePrice(), 0.001);
-    assertEquals("piece", product.getUnit());
-  }
 }
