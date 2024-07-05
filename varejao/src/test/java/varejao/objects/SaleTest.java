@@ -162,4 +162,20 @@ public class SaleTest {
         };
     }
   }
+
+  @Test
+  public void municipalTax() {
+    sale = new Sale(date, customer, cardNumber, items);
+    double total = 0.0;
+    
+    for(int i = 0; i < items.size(); i++) {
+      total += items.get(i).getSalePrice();
+    }
+
+    if (customer.getAddress().getState() == "DF") {
+      assertEquals(0.0, sale.getMunicipalTax(customer.getAddress()), 0.001);
+    } else {
+      assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress()), 0.001);
+    }
+  }
 }

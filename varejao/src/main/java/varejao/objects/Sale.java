@@ -54,4 +54,25 @@ public class Sale {
   public double getICMS(Address address) {
     return address.getState() == "DF" ? 0.18 : 0.12;
   }
+
+  public double getShippingCost(Address address) {
+    String state = address.getState();
+    boolean isCapital = address.getIsCapital();
+    switch (state) {
+      case "DF":
+        return 5.0;
+      case "GO": case "MT": case "MS":
+        return isCapital ? 10.0 : 13.0;
+      case "BA": case "PE": case "CE": case "RN": case "PB": case "SE": case "AL": case "MA": case "PI":
+        return isCapital ? 15.0 : 18.0;
+      case "AM": case "PA": case "AP": case "RO": case "RR": case "AC": case "TO":
+        return isCapital ? 20.0 : 25.0;
+      case "SP": case "RJ": case "MG": case "ES":
+        return isCapital ? 7.0 : 10.0;
+      case "PR": case "SC": case "RS":
+        return isCapital ? 10.0 : 13.0;
+      default:
+        return 0.0;
+    }
+  }
 }
