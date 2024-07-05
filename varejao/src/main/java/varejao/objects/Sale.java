@@ -79,4 +79,19 @@ public class Sale {
   public double getMunicipalTax(Address address) {
     return address.getState() == "DF" ? 0.0 : 0.04; 
   }
+
+  public double getTotal() {
+    double total = 0.0;
+    
+    for(int i = 0; i < items.size(); i++) {
+      total+= items.get(i).getSalePrice();
+    }
+
+    return (
+      total + 
+      getShippingCost(customer.getAddress()) + 
+      (total * getICMS(customer.getAddress())) + 
+      (total * getMunicipalTax(customer.getAddress()))
+    );
+  }
 }
