@@ -178,4 +178,18 @@ public class SaleTest {
       assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress()), 0.001);
     }
   }
+
+  @Test
+  public void saleTotal() {
+    sale = new Sale(date, customer, cardNumber, items);
+    double total = 0.0;
+
+    for(int i = 0; i < items.size(); i++) {
+      total+=items.get(i).getSalePrice();
+    }
+
+    total+=total*sale.getICMS(customer.getAddress()) + total*sale.getMunicipalTax(customer.getAddress()) + sale.getShippingCost(customer.getAddress());
+
+    assertEquals(total, sale.getTotal(), 0.001);
+  }
 }

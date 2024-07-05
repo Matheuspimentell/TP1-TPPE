@@ -75,4 +75,8 @@ public class Sale {
         return 0.0;
     }
   }
+
+  public double getMunicipalTax(Address address) {
+    return address.getState() == "DF" ? 0.0 : 0.04; 
+  }
 }
