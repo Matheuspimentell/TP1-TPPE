@@ -41,6 +41,6 @@ public class Customer {
 
   public void setAddress(Address address) {
     this.address.setState(address.getState());
-    this.address.setIsCapital(address.GetIsCapital());
+    this.address.setIsCapital(address.getIsCapital());
   }
 }

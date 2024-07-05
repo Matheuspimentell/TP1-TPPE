@@ -21,7 +21,7 @@ public class Address {
     return state;
   }
 
-  public boolean GetIsCapital() {
+  public boolean getIsCapital() {
     return is_capital;
   }
 
