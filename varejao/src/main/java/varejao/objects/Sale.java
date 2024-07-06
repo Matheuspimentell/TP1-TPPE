@@ -3,6 +3,8 @@ package varejao.objects;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import varejao.objects.Customer.CustomerType;
+
 public class Sale {
   private LocalDateTime date;
   private Customer customer;
@@ -51,8 +53,8 @@ public class Sale {
   }
 
   // Other methods
-  public double getICMS(Address address) {
-    return address.getState() == "DF" ? 0.18 : 0.12;
+  public double getICMS(Address address, double total) {
+    return address.getState() == "DF" ? 0.18 * total : 0.12 * total;
   }
 
   public double getShippingCost(Address address) {
@@ -76,8 +78,8 @@ public class Sale {
     }
   }
 
-  public double getMunicipalTax(Address address) {
-    return address.getState() == "DF" ? 0.0 : 0.04; 
+  public double getMunicipalTax(Address address, double total) {
+    return address.getState() == "DF" ? 0.0 : 0.04 * total; 
   }
 
   public double getTotal() {
@@ -86,12 +88,19 @@ public class Sale {
     for(int i = 0; i < items.size(); i++) {
       total+= items.get(i).getSalePrice();
     }
+    
+    double shippingCost = getShippingCost(customer.getAddress());
+    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
+    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
+
+    double icms = total*getICMS(customer.getAddress(), total);
+    double municipalTax = total*getMunicipalTax(customer.getAddress(), total);
 
     return (
       total + 
-      getShippingCost(customer.getAddress()) + 
-      (total * getICMS(customer.getAddress())) + 
-      (total * getMunicipalTax(customer.getAddress()))
+      shippingCost + 
+      icms + 
+      municipalTax
     );
   }
 }

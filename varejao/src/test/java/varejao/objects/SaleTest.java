@@ -114,7 +114,7 @@ public class SaleTest {
       icms = total * 0.12;
     }
 
-    assertEquals(icms, sale.getICMS(customer.getAddress()), 0.001);
+    assertEquals(icms, sale.getICMS(customer.getAddress(), total), 0.001);
   }
 
   @Test
@@ -173,9 +173,9 @@ public class SaleTest {
     }
 
     if (customer.getAddress().getState() == "DF") {
-      assertEquals(0.0, sale.getMunicipalTax(customer.getAddress()), 0.001);
+      assertEquals(0.0, sale.getMunicipalTax(customer.getAddress(), total), 0.001);
     } else {
-      assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress()), 0.001);
+      assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress(), total), 0.001);
     }
   }
 
@@ -188,7 +188,10 @@ public class SaleTest {
       total+=items.get(i).getSalePrice();
     }
 
-    total+=total*sale.getICMS(customer.getAddress()) + total*sale.getMunicipalTax(customer.getAddress()) + sale.getShippingCost(customer.getAddress());
+    double icms = total*sale.getICMS(customer.getAddress(), total);
+    double municipalTax = total*sale.getMunicipalTax(customer.getAddress(), total);
+    double shippingCost = sale.getShippingCost(customer.getAddress());
+    total += icms + municipalTax + shippingCost;
 
     assertEquals(total, sale.getTotal(), 0.001);
   }

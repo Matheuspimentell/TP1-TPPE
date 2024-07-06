@@ -14,7 +14,7 @@ public class Customer {
   public Customer(String username, CustomerType type, Address address) {
     this.username = username;
     this.type = type;
-    this.address = address;    
+    this.address = address;
   }
 
   // Getters
