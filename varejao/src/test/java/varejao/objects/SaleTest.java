@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,8 +67,8 @@ public class SaleTest {
           },
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
-              new Customer("anderson", CustomerType.Default, new Address("MT", true)),
-              "4296 1301 1117 7881",
+              new Customer("anderson", CustomerType.Prime, new Address("MT", true)),
+              "4206 1301 1117 7881",
               Arrays.asList(
                   new Product("014", "tablet", 250.0, "unit"),
                   new Product("015", "smartphone", 800.0, "unit"),
@@ -198,5 +200,26 @@ public class SaleTest {
     total += icms + municipalTax + shippingCost;
 
     assertEquals(total, sale.getTotal(), 0.001);
+  }
+
+  @Test
+  public void getCashback() {
+    sale = new Sale(date, customer, cardNumber, items);
+
+    double total = sale.getTotal();
+
+    if (sale.getCustomer().getType() != CustomerType.Prime) {
+      assertEquals(0.0, sale.getCashback());
+      return;
+    }
+
+    Pattern companyCard = Pattern.compile("429613\\d{10}");
+    Matcher cardMatcher = companyCard.matcher(sale.getCardNumber());
+    if(cardMatcher.matches()) {
+      assertEquals(0.05*sale.getTotal(), sale.getCashback());
+      return;
+    }
+
+    assertEquals(0.03*sale.getTotal(), sale.getCashback());
   }
 }
