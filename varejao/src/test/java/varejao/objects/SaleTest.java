@@ -190,7 +190,11 @@ public class SaleTest {
 
     double icms = total*sale.getICMS(customer.getAddress(), total);
     double municipalTax = total*sale.getMunicipalTax(customer.getAddress(), total);
+    
     double shippingCost = sale.getShippingCost(customer.getAddress());
+    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
+    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
+    
     total += icms + municipalTax + shippingCost;
 
     assertEquals(total, sale.getTotal(), 0.001);
