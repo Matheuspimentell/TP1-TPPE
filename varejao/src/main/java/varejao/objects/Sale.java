@@ -117,4 +117,23 @@ public class Sale {
 
     return total*0.03;
   }
+
+  public void checkout(double cashback) {
+
+    double shippingCost = getShippingCost(customer.getAddress());
+    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
+    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
+
+    double icms = total*getICMS(customer.getAddress());
+    double municipalTax = total*getMunicipalTax(customer.getAddress());
+    total += shippingCost+icms+municipalTax;
+    total -= cashback;
+
+    if (cashback > 0.0) {
+      customer.setCashback(customer.getCashback()-cashback);
+      customer.setCashback(getCashback());
+    }
+    
+    customer.addOrder(this);
+  }
 }
