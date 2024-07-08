@@ -25,6 +25,7 @@ public class SaleTest {
   Customer customer;
   String cardNumber;
   List<Product> items;
+  double usedCashback;
 
   @Parameters
   public static Collection<Object[]> getParameters() {
@@ -39,7 +40,8 @@ public class SaleTest {
                   new Product("006", "water bottle", 10.0, "ml"),
                   new Product("007", "notebook", 45.0, "unit"),
                   new Product("008", "pen", 1.5, "unit")
-              )
+              ),
+              120.0
           },
           {
               LocalDateTime.parse("2024-06-20T12:10:04"),
@@ -51,7 +53,8 @@ public class SaleTest {
                   new Product("003", "red bull energy drink", 5.25, "ml"),
                   new Product("004", "mousepad", 85.25, "unit"),
                   new Product("005", "chocolate", 4.75, "g")
-              )
+              ),
+              0.0
           },
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
@@ -63,7 +66,8 @@ public class SaleTest {
                   new Product("012", "chair", 150.0, "unit"),
                   new Product("004", "mousepad", 85.25, "unit"),
                   new Product("013", "cable", 20.0, "m")
-              )
+              ),
+              0.0
           },
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
@@ -75,7 +79,8 @@ public class SaleTest {
                   new Product("016", "smartwatch", 200.0, "unit"),
                   new Product("017", "earbuds", 50.0, "unit"),
                   new Product("018", "charger", 25.0, "unit")
-              )
+              ),
+              500.0
           }
       };
 
@@ -221,5 +226,23 @@ public class SaleTest {
     }
 
     assertEquals(0.03*total, sale.getCashback(), 0.001);
+  }
+
+  @Test
+  public void checkoutSale() {
+    sale = new Sale(date, customer, cardNumber, items);
+    double total = sale.recalculateTotal();
+    double icms = sale.getICMS(sale.getCustomer().getAddress());
+    double municipalTax = sale.getMunicipalTax(sale.getCustomer().getAddress());
+    double shippingCost = sale.getShippingCost(sale.getCustomer().getAddress());
+    int previousOrdersCount = customer.getOrders().size();
+
+    sale.checkout(usedCashback);
+
+    total += icms + municipalTax + shippingCost;
+    total -= usedCashback;
+
+    assertEquals(total, sale.getTotal(), 0.001);
+    assertEquals(previousOrdersCount+1, customer.getOrders().size());
   }
 }
