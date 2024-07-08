@@ -1,5 +1,8 @@
 package varejao.objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Customer {
   enum CustomerType {
     Default,
@@ -10,11 +13,15 @@ public class Customer {
   private String username;
   private CustomerType type;
   private Address address;
+  private double cashback;
+  private List<Sale> orders;
 
   public Customer(String username, CustomerType type, Address address) {
     this.username = username;
     this.type = type;
     this.address = address;
+    this.cashback = 0.0;
+    this.orders = new ArrayList<Sale>();
   }
 
   // Getters
@@ -30,6 +37,14 @@ public class Customer {
     return address;
   }
 
+  public double getCashback() {
+    return cashback;
+  }
+
+  public List<Sale> getOrders() {
+    return orders;
+  }
+
   // Setters
   public void setUsername(String username) {
     this.username = username;
@@ -42,5 +57,18 @@ public class Customer {
   public void setAddress(Address address) {
     this.address.setState(address.getState());
     this.address.setIsCapital(address.getIsCapital());
+  }
+
+  public void setCashback(double cashback) {
+    this.cashback = cashback;
+  }
+
+  public void setOrders(List<Sale> orders) {
+    this.orders = orders;
+  }
+
+  // Other methods
+  public void addOrder(Sale sale) {
+    this.orders.add(sale);
   }
 }

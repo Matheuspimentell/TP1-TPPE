@@ -32,7 +32,7 @@ public class SaleTest {
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
               new Customer("joao", CustomerType.Prime, new Address("DF", true)),
-              "4296 1301 1907 7845",
+              "4296130119077845",
               Arrays.asList(
                   new Product("001", "headset", 120.0, "unit"),
                   new Product("002", "keyboard", 180.0, "unit"),
@@ -44,7 +44,7 @@ public class SaleTest {
           {
               LocalDateTime.parse("2024-06-20T12:10:04"),
               new Customer("vinicius", CustomerType.Default, new Address("GO", false)),
-              "4226 1301 1807 7845",
+              "4226130118077845",
               Arrays.asList(
                   new Product("001", "headset", 120.0, "unit"),
                   new Product("009", "laptop", 1500.0, "unit"),
@@ -56,7 +56,7 @@ public class SaleTest {
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
               new Customer("lucas", CustomerType.Special, new Address("RJ", false)),
-              "4299 1301 1900 7845",
+              "4299130119007845",
               Arrays.asList(
                   new Product("010", "monitor", 300.0, "unit"),
                   new Product("011", "desk", 200.0, "unit"),
@@ -68,7 +68,7 @@ public class SaleTest {
           {
               LocalDateTime.parse("2024-06-20T10:30:04"),
               new Customer("anderson", CustomerType.Prime, new Address("MT", true)),
-              "4206 1301 1117 7881",
+              "4206130111177881",
               Arrays.asList(
                   new Product("014", "tablet", 250.0, "unit"),
                   new Product("015", "smartphone", 800.0, "unit"),
@@ -116,7 +116,7 @@ public class SaleTest {
       icms = total * 0.12;
     }
 
-    assertEquals(icms, sale.getICMS(customer.getAddress(), total), 0.001);
+    assertEquals(icms, sale.getICMS(customer.getAddress()), 0.001);
   }
 
   @Test
@@ -175,9 +175,9 @@ public class SaleTest {
     }
 
     if (customer.getAddress().getState() == "DF") {
-      assertEquals(0.0, sale.getMunicipalTax(customer.getAddress(), total), 0.001);
+      assertEquals(0.0, sale.getMunicipalTax(customer.getAddress()), 0.001);
     } else {
-      assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress(), total), 0.001);
+      assertEquals(total*0.04, sale.getMunicipalTax(customer.getAddress()), 0.001);
     }
   }
 
@@ -190,8 +190,8 @@ public class SaleTest {
       total+=items.get(i).getSalePrice();
     }
 
-    double icms = total*sale.getICMS(customer.getAddress(), total);
-    double municipalTax = total*sale.getMunicipalTax(customer.getAddress(), total);
+    double icms = sale.getICMS(customer.getAddress());
+    double municipalTax = sale.getMunicipalTax(customer.getAddress());
     
     double shippingCost = sale.getShippingCost(customer.getAddress());
     shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;

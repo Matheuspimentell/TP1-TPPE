@@ -12,6 +12,7 @@ public class Sale {
   private Customer customer;
   private String cardNumber;
   private List<Product> items;
+  private double total;
 
   public Sale(LocalDateTime date, Customer customer, String cardNumber, List<Product> items) {
     this.date = date;
@@ -37,6 +38,15 @@ public class Sale {
     return items;
   }
 
+  public double getTotal() {
+    total = 0.0;
+    for(int i = 0; i < items.size(); i++) {
+      total+= items.get(i).getSalePrice();
+    }
+
+    return total;
+  }
+
   // Setters
   public void setDate(LocalDateTime date) {
     this.date = date;
@@ -52,10 +62,16 @@ public class Sale {
 
   public void setItems(List<Product> items) {
     this.items = items;
+
   }
 
   // Other methods
-  public double getICMS(Address address, double total) {
+  public void addItem(Product item) {
+    this.items.add(item);
+    this.total += item.getSalePrice();
+  }
+
+  public double getICMS(Address address) {
     return address.getState() == "DF" ? 0.18 * total : 0.12 * total;
   }
 
@@ -80,33 +96,11 @@ public class Sale {
     }
   }
 
-  public double getMunicipalTax(Address address, double total) {
+  public double getMunicipalTax(Address address) {
     return address.getState() == "DF" ? 0.0 : 0.04 * total; 
   }
 
-  public double getTotal() {
-    double total = 0.0;
-    
-    for(int i = 0; i < items.size(); i++) {
-      total+= items.get(i).getSalePrice();
-    }
-    
-    double shippingCost = getShippingCost(customer.getAddress());
-    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
-    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
-
-    double icms = total*getICMS(customer.getAddress(), total);
-    double municipalTax = total*getMunicipalTax(customer.getAddress(), total);
-
-    return (
-      total + 
-      shippingCost + 
-      icms + 
-      municipalTax
-    );
-  }
-
-    public double getCashback() {
+  public double getCashback() {
     if (customer.getType() != CustomerType.Prime) {
       return 0.0;
     }
@@ -114,9 +108,9 @@ public class Sale {
     Pattern companyCard = Pattern.compile("429613\\d{10}");
     Matcher cardMatcher = companyCard.matcher(cardNumber);
     if (cardMatcher.matches()) {
-      return getTotal()*0.05;
+      return total*0.05;
     }
 
-    return getTotal()*0.03;
+    return total*0.03;
   }
 }
