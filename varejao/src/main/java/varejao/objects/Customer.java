@@ -72,4 +72,22 @@ public class Customer {
   public void addOrder(Sale sale) {
     this.orders.add(sale);
   }
+
+  public double getLastMonthsOrdersTotal() {
+    LocalDateTime now = LocalDateTime.now();
+    double total = 0.0;
+
+    for (int i = 0; i < orders.size(); i++) {
+      LocalDateTime orderDate = orders.get(i).getDate();
+      if (orderDate.isAfter(now.minusMonths(1)) && orderDate.isBefore(now)) {
+        total += orders.get(i).getTotal();
+      }
+    }
+
+    return total;
+  }
+
+  public boolean isSpecialEligible() {
+    return getLastMonthsOrdersTotal() > 100.00;
+  }
 }
