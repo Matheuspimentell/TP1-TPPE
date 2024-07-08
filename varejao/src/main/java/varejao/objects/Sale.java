@@ -19,6 +19,7 @@ public class Sale {
     this.customer = customer;
     this.cardNumber = cardNumber;
     this.items = items;
+    recalculateTotal();
   }
 
   // Getters
@@ -42,13 +43,11 @@ public class Sale {
     return total;
   }
 
-  public double recalculateTotal() {
+  public void recalculateTotal() {
     total = 0.0;
     for(int i = 0; i < items.size(); i++) {
       total+= items.get(i).getSalePrice();
     }
-
-    return total;
   }
 
   // Setters
@@ -124,8 +123,9 @@ public class Sale {
     shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
     shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
 
-    double icms = total*getICMS(customer.getAddress());
-    double municipalTax = total*getMunicipalTax(customer.getAddress());
+    double icms = getICMS(customer.getAddress());
+    double municipalTax = getMunicipalTax(customer.getAddress());
+    
     total += shippingCost+icms+municipalTax;
     total -= cashback;
 

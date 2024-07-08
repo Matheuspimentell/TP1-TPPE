@@ -87,11 +87,12 @@ public class SaleTest {
       return Arrays.asList(sales);
   }
 
-  public SaleTest(LocalDateTime date, Customer customer, String cardNumber, List<Product> items) {
+  public SaleTest(LocalDateTime date, Customer customer, String cardNumber, List<Product> items, double usedCashback) {
     this.date = date;
     this.customer = customer;
     this.cardNumber = cardNumber;
     this.items = items;
+    this.usedCashback = usedCashback;
   }
 
   @Test
@@ -128,45 +129,52 @@ public class SaleTest {
   public void shippingCost() {
     sale = new Sale(date, customer, cardNumber, items);
 
-    switch (customer.getAddress().getState()) {
+    switch (sale.getCustomer().getAddress().getState()) {
       case "DF":
         assertEquals(5.0, sale.getShippingCost(customer.getAddress()), 0.001);
+        break;
       case "GO": case "MT": case "MS":
         if(customer.getAddress().getIsCapital()) {
           assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(13.0, sale.getShippingCost(customer.getAddress()), 0.001);
         }
+        break;
       case "BA": case "PE": case "CE": case "RN": case "PB": case "SE": case "AL": case "MA": case "PI":
         if(customer.getAddress().getIsCapital()) {
           assertEquals(15.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(18.0, sale.getShippingCost(customer.getAddress()), 0.001);
         }
+        break;
       case "AM": case "PA": case "AP": case "RO": case "RR": case "AC": case "TO":
         if(customer.getAddress().getIsCapital()) {
           assertEquals(20.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(25.0, sale.getShippingCost(customer.getAddress()), 0.001);
         }
+        break;
       case "SP": case "RJ": case "MG": case "ES":
         if(customer.getAddress().getIsCapital()) {
           assertEquals(7.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
         }
+        break;
       case "PR": case "SC": case "RS":
         if(customer.getAddress().getIsCapital()) {
           assertEquals(10.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(13.0, sale.getShippingCost(customer.getAddress()), 0.001);
-        };
+        }
+        break;
       default:
         if(customer.getAddress().getIsCapital()) {
           assertEquals(0.0, sale.getShippingCost(customer.getAddress()), 0.001);
         } else {
           assertEquals(0.0, sale.getShippingCost(customer.getAddress()), 0.001);
-        };
+        }
+        break;
     }
   }
 
@@ -195,15 +203,6 @@ public class SaleTest {
       total+=items.get(i).getSalePrice();
     }
 
-    double icms = sale.getICMS(customer.getAddress());
-    double municipalTax = sale.getMunicipalTax(customer.getAddress());
-    
-    double shippingCost = sale.getShippingCost(customer.getAddress());
-    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
-    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
-    
-    total += icms + municipalTax + shippingCost;
-
     assertEquals(total, sale.getTotal(), 0.001);
   }
 
@@ -231,17 +230,18 @@ public class SaleTest {
   @Test
   public void checkoutSale() {
     sale = new Sale(date, customer, cardNumber, items);
-    double total = sale.recalculateTotal();
     double icms = sale.getICMS(sale.getCustomer().getAddress());
     double municipalTax = sale.getMunicipalTax(sale.getCustomer().getAddress());
+    
     double shippingCost = sale.getShippingCost(sale.getCustomer().getAddress());
+    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
+    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
+    
+    double total = sale.getTotal() + icms + municipalTax + shippingCost - usedCashback;
+
     int previousOrdersCount = customer.getOrders().size();
-
     sale.checkout(usedCashback);
-
-    total += icms + municipalTax + shippingCost;
-    total -= usedCashback;
-
+    
     assertEquals(total, sale.getTotal(), 0.001);
     assertEquals(previousOrdersCount+1, customer.getOrders().size());
   }
