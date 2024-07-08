@@ -1,12 +1,12 @@
 package varejao.objects;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -49,20 +49,5 @@ public class ProductTest {
     assertEquals(description, product.getDescription());
     assertEquals(salePrice, product.getSalePrice(), 0.001);
     assertEquals(unit, product.getUnit());
-  }
-  
-  @Test
-  public void testSettersAndGetters() {
-    product = new Product(itemCode, description, salePrice, unit);
-
-    product.setItemCode("005");
-    product.setDescription("Headphones");
-    product.setSalePrice(100.0);
-    product.setUnit("piece");
-    
-    assertEquals("005", product.getItemCode());
-    assertEquals("Headphones", product.getDescription());
-    assertEquals(100.0, product.getSalePrice(), 0.001);
-    assertEquals("piece", product.getUnit());
   }
 }

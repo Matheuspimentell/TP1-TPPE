@@ -1,74 +1,86 @@
 package varejao.objects;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import varejao.objects.Customer.CustomerType;
 
 public class Sale {
-  private List<SaleItem> items;
+  private LocalDateTime date;
   private Customer customer;
-  private PaymentMethod paymentMethod;
-  private String date;
+  private String cardNumber;
+  private List<Product> items;
+  private double total;
 
-  public Sale(List<SaleItem> items, Customer customer, PaymentMethod paymentMethod, String date) {
-    this.items = items;
-    this.customer = customer;
-    this.paymentMethod = paymentMethod;
+  public Sale(LocalDateTime date, Customer customer, String cardNumber, List<Product> items) {
     this.date = date;
+    this.customer = customer;
+    this.cardNumber = cardNumber;
+    this.items = items;
+    recalculateTotal();
   }
 
   // Getters
-  public List<SaleItem> getItems() {
-    return items;
+  public LocalDateTime getDate() {
+    return date;
   }
 
   public Customer getCustomer() {
     return customer;
   }
 
-  public PaymentMethod getPaymentMethod() {
-    return paymentMethod;
+  public String getCardNumber() {
+    return cardNumber;
   }
 
-  public String getDate() {
-    return date;
+  public List<Product> getItems() {
+    return items;
   }
 
-  // Métodos para cálculos de impostos, frete, descontos e cashback
-  public double calculateTotal() {
-    double total = 0.0;
-    for (SaleItem item : items) {
-      total += item.getTotalPrice();
-    }
+  public double getTotal() {
     return total;
   }
 
-  public double calculateDiscount() {
-    double discount = 0.0;
-    if (customer.getType() == Customer.CustomerType.Special) {
-      discount += calculateTotal() * 0.10;
-      if (paymentMethod == PaymentMethod.CREDIT_CARD_COMPANY) {
-        discount += calculateTotal() * 0.10;
-      }
+  public void recalculateTotal() {
+    total = 0.0;
+    for(int i = 0; i < items.size(); i++) {
+      total+= items.get(i).getSalePrice();
     }
-    return discount;
   }
 
-  public double calculateFreight() {
-    Address address = customer.getAddress();
-    double freight = 0.0;
-    if (customer.getType() == Customer.CustomerType.Prime) {
-      return 0.0;
-    } else if (customer.getType() == Customer.CustomerType.Special) {
-      // 30% de desconto no frete
-      freight = calculateBaseFreight(address) * 0.70;
-    } else {
-      freight = calculateBaseFreight(address);
-    }
-    return freight;
+  // Setters
+  public void setDate(LocalDateTime date) {
+    this.date = date;
   }
 
-  private double calculateBaseFreight(Address address) {
+  public void setCustomer(Customer customer) {
+    this.customer = customer;
+  }
+
+  public void setCardNumber(String cardNumber) {
+    this.cardNumber = cardNumber;
+  }
+
+  public void setItems(List<Product> items) {
+    this.items = items;
+
+  }
+
+  // Other methods
+  public void addItem(Product item) {
+    this.items.add(item);
+    this.total += item.getSalePrice();
+  }
+
+  public double getICMS(Address address) {
+    return address.getState() == "DF" ? 0.18 * total : 0.12 * total;
+  }
+
+  public double getShippingCost(Address address) {
     String state = address.getState();
-    boolean isCapital = address.GetIsCapital();
+    boolean isCapital = address.getIsCapital();
     switch (state) {
       case "DF":
         return 5.0;
@@ -87,36 +99,41 @@ public class Sale {
     }
   }
 
-  public double calculateICMS() {
-    Address address = customer.getAddress();
-    if (address.getState().equals("DF")) {
-      return calculateTotal() * 0.18;
-    } else {
-      return calculateTotal() * 0.12;
-    }
+  public double getMunicipalTax(Address address) {
+    return address.getState() == "DF" ? 0.0 : 0.04 * total; 
   }
 
-  public double calculateMunicipalTax() {
-    Address address = customer.getAddress();
-    if (address.getState().equals("DF")) {
+  public double getCashback() {
+    if (customer.getType() != CustomerType.Prime) {
       return 0.0;
-    } else {
-      return calculateTotal() * 0.04;
     }
+
+    Pattern companyCard = Pattern.compile("429613\\d{10}");
+    Matcher cardMatcher = companyCard.matcher(cardNumber);
+    if (cardMatcher.matches()) {
+      return total*0.05;
+    }
+
+    return total*0.03;
   }
 
-  public double calculateCashback() {
-    if (customer.getType() == Customer.CustomerType.Prime) {
-      if (paymentMethod == PaymentMethod.CREDIT_CARD_COMPANY) {
-        return calculateTotal() * 0.05;
-      } else {
-        return calculateTotal() * 0.03;
-      }
-    }
-    return 0.0;
-  }
+  public void checkout(double cashback) {
 
-  public double calculateFinalPrice() {
-    return calculateTotal() - calculateDiscount() + calculateFreight() + calculateICMS() + calculateMunicipalTax() - calculateCashback();
+    double shippingCost = getShippingCost(customer.getAddress());
+    shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost;
+    shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost;
+
+    double icms = getICMS(customer.getAddress());
+    double municipalTax = getMunicipalTax(customer.getAddress());
+    
+    total += shippingCost+icms+municipalTax;
+    total -= cashback;
+
+    if (cashback > 0.0) {
+      customer.setCashback(customer.getCashback()-cashback);
+      customer.setCashback(getCashback());
+    }
+    
+    customer.addOrder(this);
   }
 }
