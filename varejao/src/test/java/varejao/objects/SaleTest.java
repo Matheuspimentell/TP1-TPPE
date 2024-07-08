@@ -209,17 +209,17 @@ public class SaleTest {
     double total = sale.getTotal();
 
     if (sale.getCustomer().getType() != CustomerType.Prime) {
-      assertEquals(0.0, sale.getCashback());
+      assertEquals(0.0, sale.getCashback(), 0.001);
       return;
     }
 
     Pattern companyCard = Pattern.compile("429613\\d{10}");
     Matcher cardMatcher = companyCard.matcher(sale.getCardNumber());
     if(cardMatcher.matches()) {
-      assertEquals(0.05*sale.getTotal(), sale.getCashback());
+      assertEquals(0.05*total, sale.getCashback(), 0.001);
       return;
     }
 
-    assertEquals(0.03*sale.getTotal(), sale.getCashback());
+    assertEquals(0.03*total, sale.getCashback(), 0.001);
   }
 }

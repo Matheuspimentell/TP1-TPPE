@@ -2,6 +2,8 @@ package varejao.objects;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import varejao.objects.Customer.CustomerType;
 
@@ -102,5 +104,19 @@ public class Sale {
       icms + 
       municipalTax
     );
+  }
+
+    public double getCashback() {
+    if (customer.getType() != CustomerType.Prime) {
+      return 0.0;
+    }
+
+    Pattern companyCard = Pattern.compile("429613\\d{10}");
+    Matcher cardMatcher = companyCard.matcher(cardNumber);
+    if (cardMatcher.matches()) {
+      return getTotal()*0.05;
+    }
+
+    return getTotal()*0.03;
   }
 }
