@@ -103,14 +103,19 @@ public class Sale {
     return address.getState() == "DF" ? 0.0 : 0.04 * total; 
   }
 
+  private boolean isCompanyCard(String cardNumber) {
+    Pattern companyCard = Pattern.compile("429613\\d{10}");
+    Matcher cardMatcher = companyCard.matcher(cardNumber);
+
+    return cardMatcher.matches();
+  }
+
   public double getCashback() {
     if (customer.getType() != CustomerType.Prime) {
       return 0.0;
     }
 
-    Pattern companyCard = Pattern.compile("429613\\d{10}");
-    Matcher cardMatcher = companyCard.matcher(cardNumber);
-    if (cardMatcher.matches()) {
+    if (this.isCompanyCard(this.cardNumber)) {
       return total*0.05;
     }
 
