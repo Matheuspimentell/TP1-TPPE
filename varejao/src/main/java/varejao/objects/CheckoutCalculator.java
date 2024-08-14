@@ -1,5 +1,7 @@
 package varejao.objects;
 
+import varejao.objects.Customer.CustomerType;
+
 public class CheckoutCalculator {
 
   private double icms;
@@ -8,8 +10,10 @@ public class CheckoutCalculator {
   private double generatedCashback;
   private Customer customer;
   private Address address;
+  private Sale sale;
 
   public CheckoutCalculator(Sale sale) {
+    this.sale = sale;
     this.generatedCashback = sale.getCashback();
     this.customer = sale.getCustomer();
     this.address = this.customer.getAddress();
@@ -28,16 +32,17 @@ public class CheckoutCalculator {
     this.shippingCost = customer.getType() == CustomerType.Prime ? 0.0 : shippingCost; // If customer is a Prime customer, no shipping cost
     this.shippingCost = customer.getType() == CustomerType.Special ? shippingCost*0.7 : shippingCost; // If customer is a Special user, 30% off the shipping cost
 
-    double total += shippingCost+icms+municipalTax;
+    double total = 0;
+    total += shippingCost + icms + municipalTax;
     total -= usedCashback; // remove the cashback amount the user wants to use in this checkout
 
     // Remove the cashback the user used in this checkout, and then add the generated cashback for this checkout
-    if (cashback > 0.0) {
-      customer.setCashback(customer.getCashback()-cashback);
-      customer.setCashback(getCashback());
+    if (usedCashback > 0.0) {
+      customer.setCashback(customer.getCashback()-usedCashback);
+      customer.setCashback(generatedCashback);
     }
     
-    customer.addOrder(this); // Add the order to the customer's order list
+    customer.addOrder(this.sale); // Add the order to the customer's order list
     return total;
   }
 }
