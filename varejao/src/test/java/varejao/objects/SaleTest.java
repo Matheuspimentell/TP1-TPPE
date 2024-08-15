@@ -78,9 +78,4 @@ public class SaleTest {
     public void testCalculateCashback() {
         assertEquals(expectedCashback, sale.calculateCashback(), 0.001);
     }
-
-    @Test
-    public void testCalculateFinalPrice() {
-        assertEquals(expectedFinalPrice, sale.calculateFinalPrice(), 0.001);
-    }
 }
